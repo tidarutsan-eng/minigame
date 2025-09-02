@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกมทายอาชีพการตลาด MBTI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .game-container {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 600px;
+            width: 100%;
+            padding: 2rem;
+            text-align: center;
+        }
+        .btn {
+            padding: 1rem 1.5rem;
+            border-radius: 9999px;
+            font-size: 1.125rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #4a5568;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #2d3748;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #2d3748;
+        }
+        .btn-secondary:hover {
+            background-color: #cbd5e0;
+            transform: translateY(-2px);
+        }
+        .question-card {
+            background-color: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .question-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+        .answer-option {
+            background-color: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .answer-option:hover {
+            border-color: #4a5568;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .answer-option p {
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="game-container">
+        <!-- หน้าจอเริ่มต้น -->
+        <div id="start-screen" class="flex flex-col items-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">เกมทายอาชีพการตลาด MBTI</h1>
+            <p class="text-gray-600 mb-8">มาค้นหาสไตล์การทำงานที่เหมาะกับตัวตนของคุณกัน</p>
+            <button id="start-btn" class="btn btn-primary">เริ่มเล่นเลย!</button>
+        </div>
+
+        <!-- หน้าจอคำถาม -->
+        <div id="quiz-screen" class="hidden">
+            <h2 class="text-xl font-bold text-gray-700 mb-6">คำถามที่ <span id="question-number">1</span>/10</h2>
+            <div id="question-card" class="question-card">
+                <h3 id="question-text"></h3>
+            </div>
+            <div class="flex flex-col space-y-4">
+                <div id="option-a" class="answer-option">
+                    <p id="option-a-text" class="font-semibold text-gray-700"></p>
+                </div>
+                <div id="option-b" class="answer-option">
+                    <p id="option-b-text" class="font-semibold text-gray-700"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- หน้าจอผลลัพธ์ -->
+        <div id="result-screen" class="hidden text-left">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">ผลลัพธ์ของคุณคือ</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-700">MBTI ของคุณ: <span id="mbti-type" class="text-blue-600"></span></h3>
+                    <p class="text-gray-600">บุคลิกภาพ: <span id="mbti-traits"></span></p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-700">คุณคือกลุ่ม: <span id="mbti-group" class="text-green-600"></span></h3>
+                    <p class="text-gray-600">สไตล์การทำงาน: <span id="mise-identity"></span></p>
+                    <p class="text-gray-600">บุคลิกภาพโดยรวม: <span id="group-traits"></span></p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-700">เส้นทางอาชีพการตลาดที่แนะนำ:</h3>
+                    <ul id="career-path" class="list-disc list-inside text-gray-600 mt-2"></ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-700">บริษัทที่แนะนำ:</h3>
+                    <p id="suggested-companies" class="text-gray-600 mt-2"></p>
+                </div>
+            </div>
+            <button id="restart-btn" class="btn btn-secondary mt-8 w-full md:w-auto">เล่นใหม่อีกครั้ง</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "หลังเลิกงาน คุณชอบชาร์จพลังด้วยวิธีไหน?", answers: [{ key: "E", text: "ออกไปเจอเพื่อนหรือสังสรรค์" }, { key: "I", text: "อยู่บ้านเงียบ ๆ คนเดียว" }] },
+            { question: "เมื่อเจองานใหม่ คุณชอบเริ่มต้นอย่างไร?", answers: [{ key: "S", text: "ศึกษาคู่มือและทำตามขั้นตอนอย่างละเอียด" }, { key: "N", text: "มองหาภาพรวมและแนวทางใหม่ๆ" }] },
+            { question: "คุณตัดสินใจเรื่องสำคัญจากอะไร?", answers: [{ key: "T", text: "เหตุผลและข้อเท็จจริง" }, { key: "F", text: "ความรู้สึกส่วนตัวและผลกระทบต่อผู้อื่น" }] },
+            { question: "คุณจัดการเวลางานอย่างไร?", answers: [{ key: "J", text: "วางแผนและทำตามกำหนดการอย่างเคร่งครัด" }, { key: "P", text: "ยืดหยุ่น ปรับเปลี่ยนตามสถานการณ์" }] },
+            { question: "คุณชอบทำงานแบบไหนมากกว่ากัน?", answers: [{ key: "E", text: "ทำงานเป็นทีมและมีการระดมสมอง" }, { key: "I", text: "ทำงานคนเดียวอย่างอิสระ" }] },
+            { question: "คุณรับรู้ข้อมูลรอบตัวอย่างไร?", answers: [{ key: "S", text: "จดจำรายละเอียดที่เป็นรูปธรรมและจับต้องได้" }, { key: "N", text: "มองหาความหมายหรือรูปแบบที่ซ่อนอยู่" }] },
+            { question: "เมื่อมีปัญหา คุณจะพิจารณาจากอะไร?", answers: [{ key: "T", text: "วิเคราะห์ข้อดีข้อเสียอย่างเป็นกลาง" }, { key: "F", text: "คำนึงถึงความรู้สึกของทุกคนที่เกี่ยวข้อง" }] },
+            { question: "การเดินทางในวันหยุด คุณชอบแบบไหน?", answers: [{ key: "J", text: "วางแผนเส้นทางและจองที่พักล่วงหน้า" }, { key: "P", text: "เดินทางแบบสบาย ๆ และตัดสินใจหน้างาน" }] },
+            { question: "คุณชอบพูดคุยเรื่องอะไร?", answers: [{ key: "E", text: "เรื่องราวในชีวิตประจำวันหรือสิ่งที่กำลังเป็นกระแส" }, { key: "I", text: "แนวคิดเชิงลึกหรือทฤษฎีต่างๆ" }] },
+            { question: "เวลาซื้อของ คุณตัดสินใจอย่างไร?", answers: [{ key: "S", text: "เปรียบเทียบข้อมูลจำเพาะและรีวิวสินค้า" }, { key: "N", text: "สนใจคุณค่าหรือแรงบันดาลใจเบื้องหลังสินค้า" }] }
+        ];
+
+        const mbtiDetails = {
+            'INFJ': {
+                traits: 'อุดมคติ, ขับเคลื่อนด้วยคุณค่า, เข้าใจผู้อื่น',
+                mise: 'Moral + Emotional',
+                career: ['นักการตลาดเพื่อสังคม (SDG/CSR)', 'Storytelling Content Creator'],
+                group: 'The Empathizers'
+            },
+            'ENFJ': {
+                traits: 'เป็นแรงบันดาลใจ, มนุษยสัมพันธ์ดี, โน้มน้าวเก่ง',
+                mise: 'Moral + Social + Emotional',
+                career: ['Community Engagement Marketer', 'Brand Experience Designer'],
+                group: 'The Social Creators'
+            },
+            'INFP': {
+                traits: 'สร้างสรรค์, อ่อนไหวต่อคุณค่า, มีจินตนาการ',
+                mise: 'Moral + Emotional',
+                career: ['Creative Copywriter / Storyteller', 'Social Impact Marketer'],
+                group: 'The Empathizers'
+            },
+            'ENFP': {
+                traits: 'กระตือรือร้น, ชอบเชื่อมคน, สร้างสรรค์สูง',
+                mise: 'Social + Emotional',
+                career: ['Event & Experience Marketer', 'Viral Content Creator'],
+                group: 'The Social Creators'
+            },
+            'INTJ': {
+                traits: 'มองการณ์ไกล, คิดเชิงกลยุทธ์',
+                mise: 'Intelligence + Technology',
+                career: ['Data-driven Marketing Strategist', 'Martech Innovator'],
+                group: 'The Strategists'
+            },
+            'ENTJ': {
+                traits: 'ภาวะผู้นำ, ตัดสินใจเด็ดขาด, มุ่งผลลัพธ์',
+                mise: 'Intelligence + Social',
+                career: ['Global Marketing Manager', 'Business Development Strategist'],
+                group: 'The Strategists'
+            },
+            'INTP': {
+                traits: 'ชอบวิเคราะห์, รักการคิดเชิงทฤษฎี',
+                mise: 'Intelligence + Technology',
+                career: ['Digital Marketing Analyst', 'UX/CX Researcher'],
+                group: 'The Strategists'
+            },
+            'ENTP': {
+                traits: 'ชอบนวัตกรรม, ท้าทายกรอบเดิม',
+                mise: 'Social + Technology',
+                career: ['Disruptive Marketing Planner', 'Creative Campaign Director'],
+                group: 'The Social Creators'
+            },
+            'ISTJ': {
+                traits: 'มีระบบ, เชื่อถือได้, ละเอียดรอบคอบ',
+                mise: 'Intelligence + Moral',
+                career: ['Performance Marketing Manager', 'CSR & Compliance Marketer'],
+                group: 'The Strategists'
+            },
+            'ESTJ': {
+                traits: 'จริงจัง, จัดการเก่ง, ภาวะผู้นำ',
+                mise: 'Intelligence + Social',
+                career: ['Retail & Channel Marketing Manager', 'Growth Marketing Strategist'],
+                group: 'The Strategists'
+            },
+            'ISFJ': {
+                traits: 'ใส่ใจ, ซื่อสัตย์, เน้นการบริการ',
+                mise: 'Moral + Emotional',
+                career: ['CRM Specialist', 'Customer Care Branding'],
+                group: 'The Empathizers'
+            },
+            'ESFJ': {
+                traits: 'เข้าสังคมเก่ง, สนับสนุนผู้อื่น, จัดการเก่ง',
+                mise: 'Social + Emotional',
+                career: ['PR & Influencer Relations', 'Lifestyle Event Organizer'],
+                group: 'The Empathizers'
+            },
+            'ISTP': {
+                traits: 'ช่างเทคนิค, ปรับตัวไว, ใช้เหตุผล',
+                mise: 'Technology + Intelligence',
+                career: ['Digital Production Specialist', 'Marketing Tech Tester'],
+                group: 'The Drivers'
+            },
+            'ESTP': {
+                traits: 'พลังงานสูง, ชอบความท้าทาย, โน้มน้าวเก่ง',
+                mise: 'Social + Technology',
+                career: ['Experiential Marketer', 'Lifestyle Brand Builder'],
+                group: 'The Drivers'
+            },
+            'ISFP': {
+                traits: 'ศิลปะสูง, อ่อนไหวต่อความงาม',
+                mise: 'Emotional + Moral',
+                career: ['Visual Brand Designer', 'Sustainable Branding Specialist'],
+                group: 'The Empathizers'
+            },
+            'ESFP': {
+                traits: 'สนุกสนาน, ดึงดูดผู้คน, เก่งการสื่อสาร',
+                mise: 'Social + Emotional',
+                career: ['Social Media Influencer', 'Entertainment Event Marketer'],
+                group: 'The Social Creators'
+            }
+        };
+
+        const groupDetails = {
+            'The Strategists': {
+                traits: 'คิดเชิงวิเคราะห์, มองการณ์ไกล, มีวินัย, มีภาวะผู้นำ',
+                mise: 'Intelligence + Technology',
+                companies: 'Google, Accenture, SCB 10X, Agoda'
+            },
+            'The Social Creators': {
+                traits: 'สร้างสรรค์, สนุกสนาน, ชอบคอนเทนต์, อีเวนต์, และการเชื่อมโยงผู้คน',
+                mise: 'Social + Emotional',
+                companies: 'Shopee, TikTok, GMMTV, Netflix'
+            },
+            'The Empathizers': {
+                traits: 'อ่อนไหวต่อคุณค่า, เข้าใจความรู้สึกผู้อื่น, ใส่ใจความสัมพันธ์',
+                mise: 'Moral + Emotional',
+                companies: 'SCG, PTT, ThaiBev (CSR), Sephora'
+            },
+            'The Drivers': {
+                traits: 'จริงจัง, ลงมือทำจริง, ปรับตัวไว, เก่งการจัดการ, ชอบความท้าทายและการสร้างสิ่งใหม่',
+                mise: 'Intelligence + Social (+ Tech)',
+                companies: 'Central Retail, Toyota, Red Bull Thailand, Lazada Tech'
+            }
+        };
+
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const questionNumberEl = document.getElementById('question-number');
+        const questionTextEl = document.getElementById('question-text');
+        const optionA = document.getElementById('option-a');
+        const optionB = document.getElementById('option-b');
+        const optionAText = document.getElementById('option-a-text');
+        const optionBText = document.getElementById('option-b-text');
+        const mbtiTypeEl = document.getElementById('mbti-type');
+        const mbtiTraitsEl = document.getElementById('mbti-traits');
+        const mbtiGroupEl = document.getElementById('mbti-group');
+        const miseIdentityEl = document.getElementById('mise-identity');
+        const groupTraitsEl = document.getElementById('group-traits');
+        const careerPathEl = document.getElementById('career-path');
+        const suggestedCompaniesEl = document.getElementById('suggested-companies');
+
+        // เริ่มเกม
+        function startGame() {
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            showQuestion();
+        }
+
+        // แสดงคำถามปัจจุบัน
+        function showQuestion() {
+            if (currentQuestionIndex < quizData.length) {
+                const currentQuestion = quizData[currentQuestionIndex];
+                questionNumberEl.textContent = currentQuestionIndex + 1;
+                questionTextEl.textContent = currentQuestion.question;
+                optionAText.textContent = currentQuestion.answers[0].text;
+                optionBText.textContent = currentQuestion.answers[1].text;
+                
+                optionA.onclick = () => handleAnswer(currentQuestion.answers[0].key);
+                optionB.onclick = () => handleAnswer(currentQuestion.answers[1].key);
+            } else {
+                showResult();
+            }
+        }
+
+        // จัดการคำตอบของผู้ใช้
+        function handleAnswer(answer) {
+            userAnswers.push(answer);
+            currentQuestionIndex++;
+            showQuestion();
+        }
+        
+        // คำนวณผลลัพธ์ MBTI
+        function calculateMBTI() {
+            const counts = {};
+            userAnswers.forEach(answer => {
+                counts[answer] = (counts[answer] || 0) + 1;
+            });
+            
+            const e = counts['E'] || 0;
+            const i = counts['I'] || 0;
+            const s = counts['S'] || 0;
+            const n = counts['N'] || 0;
+            const t = counts['T'] || 0;
+            const f = counts['F'] || 0;
+            const j = counts['J'] || 0;
+            const p = counts['P'] || 0;
+            
+            let mbtiType = "";
+            mbtiType += e > i ? "E" : "I";
+            mbtiType += s > n ? "S" : "N";
+            mbtiType += t > f ? "T" : "F";
+            mbtiType += j > p ? "J" : "P";
+
+            return mbtiType;
+        }
+
+        // แสดงผลลัพธ์
+        function showResult() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            const mbtiType = calculateMBTI();
+            const details = mbtiDetails[mbtiType] || {};
+            
+            mbtiTypeEl.textContent = mbtiType;
+            mbtiTraitsEl.textContent = details.traits || 'ไม่พบข้อมูล';
+
+            const group = details.group;
+            const groupInfo = groupDetails[group] || {};
+            mbtiGroupEl.textContent = group || 'ไม่พบข้อมูล';
+            miseIdentityEl.textContent = groupInfo.mise || 'ไม่พบข้อมูล';
+            groupTraitsEl.textContent = groupInfo.traits || 'ไม่พบข้อมูล';
+            
+            careerPathEl.innerHTML = '';
+            (details.career || []).forEach(path => {
+                const li = document.createElement('li');
+                li.textContent = path;
+                careerPathEl.appendChild(li);
+            });
+            
+            suggestedCompaniesEl.textContent = groupInfo.companies || 'ไม่พบข้อมูล';
+        }
+
+        // รีเซ็ตเกม
+        function restartGame() {
+            resultScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', restartGame);
+    </script>
+</body>
+</html>
